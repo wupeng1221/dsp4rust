@@ -1,7 +1,7 @@
-use std::f64::consts::TAU;
-use ndarray_rand::rand_distr::{Distribution, Normal};
-use ndarray_rand::rand;
 use crate::signal::Signal;
+use ndarray_rand::rand;
+use ndarray_rand::rand_distr::{Distribution, Normal};
+use std::f64::consts::TAU;
 
 /// Signal generator for various waveforms.
 ///
@@ -380,7 +380,11 @@ impl Generator {
 
         // 创建一个服从正态分布的随机数组
         let noise_vec: Vec<f64> = (0..samples)
-            .map(|_| Normal::new(mean, std_dev).unwrap().sample(&mut rand::thread_rng()))
+            .map(|_| {
+                Normal::new(mean, std_dev)
+                    .unwrap()
+                    .sample(&mut rand::thread_rng())
+            })
             .collect();
 
         Signal::from_vec(noise_vec)
@@ -423,7 +427,10 @@ impl Generator {
     /// let generator = Generator::new().sample_rate(44100.0).start_time(0.0).stop_time(1.0).build();
     /// let custom_wave = generator.fn_wave(|t| t.sin() + 0.5 * (2.0 * t).sin());
     /// ```
-    pub fn fn_wave<T>(&self, f: T) -> Signal where T: Fn(f64) -> f64 {
+    pub fn fn_wave<T>(&self, f: T) -> Signal
+    where
+        T: Fn(f64) -> f64,
+    {
         let samples = ((self.stop_time - self.start_time) * self.sample_rate) as usize;
         let mut data = Vec::with_capacity(samples);
 

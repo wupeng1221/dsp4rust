@@ -1,7 +1,7 @@
 use crate::inner::base::SignalBase;
 use num_traits::AsPrimitive;
 use std::fmt::Display;
-use std::ops::{Deref, DerefMut, Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign};
+use std::ops::{Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 /// Represents a signal structure for digital signal processing.
 ///
@@ -392,9 +392,9 @@ impl<'a> DivAssign<&'a Signal> for Signal {
 }
 
 // 实现 Signal 与标量的运算
-impl<'a, T> Add<&'a T> for &'a Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> Add<&'a T> for &'a Signal
+where
+    T: AsPrimitive<f64>,
 {
     type Output = Signal;
     fn add(self, other: &'a T) -> Signal {
@@ -402,9 +402,9 @@ where
     }
 }
 
-impl<'a, T> Sub<&'a T> for &'a Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> Sub<&'a T> for &'a Signal
+where
+    T: AsPrimitive<f64>,
 {
     type Output = Signal;
     fn sub(self, other: &'a T) -> Signal {
@@ -412,9 +412,9 @@ where
     }
 }
 
-impl<'a, T> Mul<&'a T> for &'a Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> Mul<&'a T> for &'a Signal
+where
+    T: AsPrimitive<f64>,
 {
     type Output = Signal;
     fn mul(self, other: &'a T) -> Signal {
@@ -422,9 +422,9 @@ where
     }
 }
 
-impl<'a, T> Div<&'a T> for &'a Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> Div<&'a T> for &'a Signal
+where
+    T: AsPrimitive<f64>,
 {
     type Output = Signal;
     fn div(self, other: &'a T) -> Signal {
@@ -433,36 +433,36 @@ where
 }
 
 // 为 Signal 实现与引用标量的原地运算
-impl<'a, T> AddAssign<&'a T> for Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> AddAssign<&'a T> for Signal
+where
+    T: AsPrimitive<f64>,
 {
     fn add_assign(&mut self, other: &'a T) {
         self.signal += other;
     }
 }
 
-impl<'a, T> SubAssign<&'a T> for Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> SubAssign<&'a T> for Signal
+where
+    T: AsPrimitive<f64>,
 {
     fn sub_assign(&mut self, other: &'a T) {
         self.signal -= other;
     }
 }
 
-impl<'a, T> MulAssign<&'a T> for Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> MulAssign<&'a T> for Signal
+where
+    T: AsPrimitive<f64>,
 {
     fn mul_assign(&mut self, other: &'a T) {
         self.signal *= other;
     }
 }
 
-impl<'a, T> DivAssign<&'a T> for Signal 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> DivAssign<&'a T> for Signal
+where
+    T: AsPrimitive<f64>,
 {
     fn div_assign(&mut self, other: &'a T) {
         self.signal /= other;

@@ -1,12 +1,12 @@
 use ndarray::iter::{Iter, IterMut};
+use ndarray::{concatenate, Axis};
 use ndarray::{Array1, Ix, Ix1};
 use ndarray_stats::errors::MinMaxError;
 use ndarray_stats::QuantileExt;
 use num_traits::AsPrimitive;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
-use ndarray::{Axis, concatenate};
 use std::iter::repeat;
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
 use super::{BaseOperationError, PadError};
 
@@ -42,7 +42,10 @@ impl Iterator for SignalBase {
 // 实现滑动窗口
 impl SignalBase {
     pub fn windows(&self, window_size: usize) -> impl Iterator<Item = SignalBase> + '_ {
-        self.base.windows(window_size).into_iter().map(|window| SignalBase::from_array1(window.to_owned()))
+        self.base
+            .windows(window_size)
+            .into_iter()
+            .map(|window| SignalBase::from_array1(window.to_owned()))
     }
 }
 // 实现方括号索引
@@ -216,7 +219,6 @@ impl SignalBase {
     pub fn avg_power(&self) -> f64 {
         self.energy() / self.len() as f64
     }
-
 }
 // 信号截取生成新的信号
 impl SignalBase {
@@ -343,7 +345,10 @@ impl<'a> DivAssign<&'a SignalBase> for SignalBase {
 }
 
 // 实现和标量的广播，只保留引用传递，标量只能出现在右侧
-impl<'a, 'b, T> Add<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
+impl<'a, 'b, T> Add<&'b T> for &'a SignalBase
+where
+    T: AsPrimitive<f64>,
+{
     type Output = SignalBase;
     fn add(self, other: &'b T) -> SignalBase {
         SignalBase {
@@ -352,7 +357,10 @@ impl<'a, 'b, T> Add<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
     }
 }
 
-impl<'a, 'b, T> Sub<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
+impl<'a, 'b, T> Sub<&'b T> for &'a SignalBase
+where
+    T: AsPrimitive<f64>,
+{
     type Output = SignalBase;
     fn sub(self, other: &'b T) -> SignalBase {
         SignalBase {
@@ -361,7 +369,10 @@ impl<'a, 'b, T> Sub<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
     }
 }
 
-impl<'a, 'b, T> Mul<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
+impl<'a, 'b, T> Mul<&'b T> for &'a SignalBase
+where
+    T: AsPrimitive<f64>,
+{
     type Output = SignalBase;
     fn mul(self, other: &'b T) -> SignalBase {
         SignalBase {
@@ -370,7 +381,10 @@ impl<'a, 'b, T> Mul<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
     }
 }
 
-impl<'a, 'b, T> Div<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
+impl<'a, 'b, T> Div<&'b T> for &'a SignalBase
+where
+    T: AsPrimitive<f64>,
+{
     type Output = SignalBase;
     fn div(self, other: &'b T) -> SignalBase {
         SignalBase {
@@ -380,36 +394,36 @@ impl<'a, 'b, T> Div<&'b T> for &'a SignalBase where T: AsPrimitive<f64> {
 }
 
 // 为 SignalBase 实现与引用标量的原地运算
-impl<'a, T> AddAssign<&'a T> for SignalBase 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> AddAssign<&'a T> for SignalBase
+where
+    T: AsPrimitive<f64>,
 {
     fn add_assign(&mut self, other: &'a T) {
         self.base += other.as_();
     }
 }
 
-impl<'a, T> SubAssign<&'a T> for SignalBase 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> SubAssign<&'a T> for SignalBase
+where
+    T: AsPrimitive<f64>,
 {
     fn sub_assign(&mut self, other: &'a T) {
         self.base -= other.as_();
     }
 }
 
-impl<'a, T> MulAssign<&'a T> for SignalBase 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> MulAssign<&'a T> for SignalBase
+where
+    T: AsPrimitive<f64>,
 {
     fn mul_assign(&mut self, other: &'a T) {
         self.base *= other.as_();
     }
 }
 
-impl<'a, T> DivAssign<&'a T> for SignalBase 
-where 
-    T: AsPrimitive<f64> 
+impl<'a, T> DivAssign<&'a T> for SignalBase
+where
+    T: AsPrimitive<f64>,
 {
     fn div_assign(&mut self, other: &'a T) {
         self.base /= other.as_();
@@ -423,9 +437,7 @@ impl SignalBase {
             return Err(BaseOperationError::DiffShortLength);
         }
         Ok(SignalBase::from_iter(
-            self.base.windows(2)
-                .into_iter()
-                .map(|w| w[1] - w[0])
+            self.base.windows(2).into_iter().map(|w| w[1] - w[0]),
         ))
     }
 
@@ -442,13 +454,18 @@ pub enum PadSide {
 impl SignalBase {
     fn concat(&self, another: &SignalBase) -> Self {
         SignalBase {
-            base: concatenate![Axis(0), self.base, another.base]
+            base: concatenate![Axis(0), self.base, another.base],
         }
     }
 
-    pub fn pad_cons<T>(&self, pad_side: PadSide, constants: T, pad_width: usize) -> Result<Self, PadError>
+    pub fn pad_cons<T>(
+        &self,
+        pad_side: PadSide,
+        constants: T,
+        pad_width: usize,
+    ) -> Result<Self, PadError>
     where
-        T: AsPrimitive<f64>
+        T: AsPrimitive<f64>,
     {
         let cons_signal = Self::from_elem(constants.as_(), pad_width);
         match pad_side {
@@ -462,12 +479,14 @@ impl SignalBase {
                 if self.len() + pad_width > isize::MAX as usize {
                     return Err(PadError::ResultOutOfBounds);
                 }
-                Ok(cons_signal.concat(self))}
+                Ok(cons_signal.concat(self))
+            }
             PadSide::Both => {
                 if self.len() + pad_width > isize::MAX as usize {
                     return Err(PadError::ResultOutOfBounds);
                 }
-                Ok(cons_signal.concat(self).concat(&cons_signal))},
+                Ok(cons_signal.concat(self).concat(&cons_signal))
+            }
         }
     }
 
@@ -481,7 +500,9 @@ impl SignalBase {
         }
         let repeat_count = pad_width / len;
         let remain = pad_width % len;
-        let views = repeat(self.base.view()).take(repeat_count).collect::<Vec<_>>();
+        let views = repeat(self.base.view())
+            .take(repeat_count)
+            .collect::<Vec<_>>();
         let repeated = match concatenate(Axis(0), views.as_slice()) {
             Ok(v) => v,
             Err(e) => {
@@ -491,32 +512,45 @@ impl SignalBase {
 
         let padded = match pad_side {
             PadSide::Left => {
-                let left_iter = self.base
+                let left_iter = self
+                    .base
                     .as_slice()
                     .unwrap()
                     .iter()
                     .skip(len - remain)
                     .rev();
-                left_iter.chain(repeated.iter()).chain(self.base.iter()).cloned().collect()
+                left_iter
+                    .chain(repeated.iter())
+                    .chain(self.base.iter())
+                    .cloned()
+                    .collect()
             }
             PadSide::Right => {
-                let right_iter = self.base
+                let right_iter = self
+                    .base
                     .as_slice()
                     .unwrap()
                     .iter()
                     .rev()
                     .skip(len - remain)
                     .rev();
-                self.base.iter().chain(repeated.iter()).chain(right_iter).cloned().collect()
+                self.base
+                    .iter()
+                    .chain(repeated.iter())
+                    .chain(right_iter)
+                    .cloned()
+                    .collect()
             }
             PadSide::Both => {
-                let left_iter = self.base
+                let left_iter = self
+                    .base
                     .as_slice()
                     .unwrap()
                     .iter()
                     .skip(len - remain)
                     .rev();
-                let right_iter = self.base
+                let right_iter = self
+                    .base
                     .as_slice()
                     .unwrap()
                     .iter()
