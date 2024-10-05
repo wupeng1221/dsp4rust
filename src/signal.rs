@@ -209,33 +209,6 @@ impl Signal {
         Self::from_base(SignalBase::from_len_fn(len, f))
     }
 
-    /// Creates a `Signal` from an iterable object.
-    ///
-    /// # Parameters
-    /// * `iter` - An iterable object whose elements can be converted to `f64`.
-    ///
-    /// 从可迭代对象创建 `Signal`。
-    ///
-    /// # 参数
-    /// * `iter` - 一个可迭代对象，其元素可以转换为 `f64`。
-    ///
-    /// # Example
-    /// ```
-    /// use dsp4rust::signal::Signal;
-    /// let signal = Signal::from_iter(vec![1, 2, 3]);
-    /// assert_eq!(signal.len(), 3);
-    /// assert_eq!(signal[1], 2.0);
-    /// ```
-    pub fn from_iter<I, T>(iter: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: AsPrimitive<f64>,
-    {
-        Self::from_base(SignalBase::from_iter(
-            iter.into_iter().map(AsPrimitive::as_),
-        ))
-    }
-
     /// Creates a zero signal of specified length.
     ///
     /// # Parameters
