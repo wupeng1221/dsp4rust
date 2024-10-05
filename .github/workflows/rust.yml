@@ -60,7 +60,7 @@ jobs:
         if: failure()
         run: |
           git config --local user.email "wupeng1221@gmail.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name "brainwu"
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "style: 自动格式化代码 / Auto-format code"
       - name: Push changes
